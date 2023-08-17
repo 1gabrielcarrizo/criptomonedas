@@ -1,8 +1,12 @@
 :root{
-  --moonlit-asteroid: linear-gradient(to right, #0F2027, #203A43, #2C5364);
+  --moonlit-asteroid: linear-gradient(to bottom, #0F2027, #203A43, #2C5364);
+}
+
+*{
+  box-sizing: border-box;
 }
 
 body{
   background: var(--moonlit-asteroid);
-  /* min-height: 100vh; */
+  margin: 0;
 }

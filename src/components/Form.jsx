@@ -1,8 +1,9 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from '@emotion/styled' // permite crear style components
 import useSelectMonedas from '../hooks/useSelectMonedas'
 import { monedas } from '../data/coin'
 import axios from 'axios'
+import Error from './Error'
 
 const InputSubmit = styled.input`
 background-color: #9497FF;
@@ -22,21 +23,14 @@ margin-top: 1.5em;
 }
 `
 
-const Form = () => {
+const Form = ({setMonedasYCriptomonedas}) => {
+    // se usa el useState cuando se trabaja con una API
+    const [criptos, setCriptos] = useState([])
+    const [error, setError] = useState(false)
+
     // extraemos la funcion del hook
     const [moneda, SelectMonedas] = useSelectMonedas('Elige tu moneda', monedas)
-    // const [selectCriptomonedas] = useSelectMonedas('Selecciona tu criptomoneda')
-
-    /*
-    useEffect(() => {
-        const consultarAPI = async () => {
-            const urlAPI = 'https://min-api.cryptocompare.com/data/top/mktcapfull?limit=20&tsym=USD'
-            const respuesta = await fetch(urlAPI)
-            console.log(respuesta)
-        }
-        consultarAPI()
-    }, []) // cuando "Form.jsx" este listo, llamara a la API de criptomonedas
-    */
+    const [criptomoneda, SelectCriptomonedas] = useSelectMonedas('Elige tu criptomoneda', criptos)
 
     // usando FETCH
     /*
@@ -59,10 +53,26 @@ const Form = () => {
     useEffect(() => {
         const consultarAPI = async () => {
             try {
-                const resp = await axios.get('https://min-api.cryptocompare.com/data/top/mktcapfull?limit=20&tsym=USD')
-                const {Data} = await resp.data
-                console.log('usando axios con async/await')
-                console.log(Data)
+                const limite = 20
+                const resp = await axios.get(`https://min-api.cryptocompare.com/data/top/mktcapfull?limit=${limite}&tsym=USD`)
+                const { Data } = await resp.data
+                // console.log('usando axios con async/await')
+                // console.log(Data)
+
+                const arrayCriptos = Data.map((cripto) => {
+                    const { FullName } = cripto.CoinInfo
+                    const { Name } = cripto.CoinInfo
+
+                    const objeto = {
+                        id: Name,
+                        nombre: FullName
+                    }
+
+                    return objeto
+                })
+
+                // console.log(arrayCriptos)
+                setCriptos(arrayCriptos)
             } catch (error) {
                 console.error(error)
             }
@@ -70,14 +80,32 @@ const Form = () => {
         consultarAPI()
     }, [])
 
+    const handleSubmit = (e) => {
+        e.preventDefault()
+        if ([moneda, criptomoneda].includes('')) {
+            setError(true)
+            // setTimeout(() => {
+            //     setError(false)
+            // }, 3000);
+            return
+        }
+        setError(false)
+        setMonedasYCriptomonedas({
+            moneda,
+            criptomoneda
+        })
+    }
 
     return (
-        <form>
-            <SelectMonedas />
-            {moneda}
-            {/* <selectCriptomonedas/> */}
-            <InputSubmit type="submit" value="Cotizar" />
-        </form>
+        <>
+            {error && <Error>Todos los campos son requeridos</Error>}
+            <form onSubmit={handleSubmit}>
+                <SelectMonedas />
+                <SelectCriptomonedas />
+                <InputSubmit type="submit" value="Cotizar" />
+            </form>
+
+        </>
     )
 }
 
