@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import styled from '@emotion/styled' // permite crear style components
-import ImagenCripto from './assets/img/imagen-criptos.png'
+import ImagenCripto from './assets/img/imagen-criptos.webp'
 import Form from './components/Form'
 import axios from 'axios'
 import Result from './components/Result'
